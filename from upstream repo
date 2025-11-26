@@ -1,0 +1,105 @@
+[1mdiff --git a/backend/controllers/authController.js b/backend/controllers/authController.js[m
+[1mindex fcc8c1d..87c2ea9 100644[m
+[1m--- a/backend/controllers/authController.js[m
+[1m+++ b/backend/controllers/authController.js[m
+[36m@@ -1,72 +1,63 @@[m
+ import User from "../models/userModel.js";[m
+ import jwt from "jsonwebtoken";[m
+[32m+[m[32mimport bcrypt from "bcryptjs";[m
+ [m
+ // Generate JWT[m
+[31m-const generateToken = (id) =>[m
+[31m-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });[m
+[32m+[m[32mconst generateToken = (id) => {[m
+[32m+[m[32m  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });[m
+[32m+[m[32m};[m
+[32m+[m
+ [m
+[31m-// REGISTER[m
+[32m+[m[32m// REGISTER USER[m
+ export const registerUser = async (req, res) => {[m
+[31m-  const { name, email, password, role } = req.body;[m
+   try {[m
+[31m-    const exists = await User.findOne({ email });[m
+[31m-    if (exists) return res.status(400).json({ message: "User already exists" });[m
+[32m+[m[32m    const { fullName, email, password, role } = req.body;[m
+[32m+[m
+[32m+[m[32m    const existing = await User.findOne({ email });[m
+[32m+[m[32m    if (existing)[m
+[32m+[m[32m      return res.status(400).json({ message: "User already exists" });[m
+[32m+[m
+[32m+[m[32m    const user = await User.create({[m
+[32m+[m[32m      fullName,[m
+[32m+[m[32m      email,[m
+[32m+[m[32m      password,[m
+[32m+[m[32m      role,[m
+[32m+[m[32m    });[m
+ [m
+[31m-    const user = await User.create({ name, email, password, role });[m
+[31m-    if (user) {[m
+[31m-      res.status(201).json({[m
+[31m-        _id: user._id,[m
+[31m-        name: user.name,[m
+[31m-        email: user.email,[m
+[31m-        role: user.role,[m
+[31m-        token: generateToken(user._id),[m
+[31m-      });[m
+[31m-    }[m
+[31m-  } catch (err) {[m
+[31m-    res.status(500).json({ message: err.message });[m
+[32m+[m[32m    res.status(201).json({[m
+[32m+[m[32m      _id: user._id,[m
+[32m+[m[32m      fullName: user.fullName,[m
+[32m+[m[32m      email: user.email,[m
+[32m+[m[32m      role: user.role,[m
+[32m+[m[32m      token: generateToken(user._id),[m
+[32m+[m[32m    });[m
+[32m+[m[32m  } catch (error) {[m
+[32m+[m[32m    res.status(500).json({ message: error.message });[m
+   }[m
+ };[m
+ [m
+[31m-// LOGIN[m
+[32m+[m
+[32m+[m[32m// LOGIN USER[m
+ export const loginUser = async (req, res) => {[m
+[31m-  const { email, password } = req.body;[m
+   try {[m
+[31m-    const user = await User.findOne({ email });[m
+[31m-    if (user && (await user.matchPassword(password))) {[m
+[31m-      res.json({[m
+[31m-        _id: user._id,[m
+[31m-        name: user.name,[m
+[31m-        email: user.email,[m
+[31m-        role: user.role,[m
+[31m-        token: generateToken(user._id),[m
+[31m-      });[m
+[31m-    } else {[m
+[31m-      res.status(401).json({ message: "Invalid credentials" });[m
+[31m-    }[m
+[31m-  } catch (err) {[m
+[31m-    res.status(500).json({ message: err.message });[m
+[31m-  }[m
+[31m-};[m
+[32m+[m[32m    const { email, password } = req.body;[m
+ [m
+[31m-// GET ALL USERS (Admin only)[m
+[31m-export const getUsers = async (req, res) => {[m
+[31m-  try {[m
+[31m-    const users = await User.find().select("-password"); // exclude password[m
+[31m-    res.json(users);[m
+[31m-  } catch (err) {[m
+[31m-    res.status(500).json({ message: err.message });[m
+[31m-  }[m
+[31m-};[m
+[32m+[m[32m    const user = await User.findOne({ email });[m
+[32m+[m[32m    if (!user)[m
+[32m+[m[32m      return res.status(400).json({ message: "Invalid email or password" });[m
+ [m
+[31m-// DELETE USER (Admin only)[m
+[31m-export const deleteUser = async (req, res) => {[m
+[31m-  try {[m
+[31m-    const user = await User.findById(req.params.id);[m
+[31m-    if (!user) return res.status(404).json({ message: "User not found" });[m
+[32m+[m[32m    const isMatch = await bcrypt.compare(password, user.password);[m
+[32m+[

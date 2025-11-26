@@ -1,0 +1,97 @@
+/* ===== Sidebar Wrapper ===== */
+.sidebar {
+  height: 100vh;
+  background: #ffb6c1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding-top: 60px;
+  overflow-y: auto;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.15);
+  scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Expanded */
+.sidebar.open {
+  width: 250px;
+}
+
+/* Collapsed */
+.sidebar.closed {
+  width: 72px;
+}
+
+/* ===== Menu List ===== */
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 14px;
+  text-decoration: none;
+  color: black;
+  width: 100%;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.menu-icon {
+  font-size: 22px;
+  width: 26px;
+  text-align: center;
+}
+
+.menu-text {
+  font-size: 16px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* ===== Collapsed mode ===== */
+.sidebar.closed .menu-item {
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.sidebar.closed .menu-icon {
+  font-size: 24px;
+}
+
+.sidebar.closed .menu-text {
+  font-size: 12px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== Toggle Button ===== */
+.toggle-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: #ff5d8f;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  font-size: 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000;
+}

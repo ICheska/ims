@@ -1,0 +1,66 @@
+.inv-container {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  max-width: 650px;
+  margin: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.inv-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.inv-form .form-row {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.inv-form label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #444;
+  font-weight: 500;
+}
+
+.inv-form select,
+.inv-form input,
+.inv-form textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+}
+
+.inv-form input:focus,
+.inv-form select:focus,
+.inv-form textarea:focus {
+  border-color: #dc3545;
+}
+
+.inv-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.inv-btn {
+  width: 100%;
+  padding: 12px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.inv-btn:hover {
+  background: #b52a37;
+}
