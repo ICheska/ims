@@ -1,0 +1,39 @@
+.manage-container {
+  padding: 20px;
+}
+
+.manage-container h2 {
+  margin-bottom: 20px;
+}
+
+.manage-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.manage-table th,
+.manage-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.manage-table th {
+  background: #f5f5f5;
+  font-weight: bold;
+}
+
+.delete-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #e04445;
+}

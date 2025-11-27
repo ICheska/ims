@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import "./EditProduct.css";   // <-- IMPORT CSS HERE
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -39,6 +40,7 @@ export default function EditProduct() {
       await axios.put(`http://localhost:5000/api/products/${id}`, data, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
+
       alert("✅ Product updated!");
       navigate("/admin/products");
     } catch (err) {
@@ -48,32 +50,45 @@ export default function EditProduct() {
   };
 
   return (
-    <div className="form-container">
-      <h2>Edit Product</h2>
-      <form onSubmit={handleSubmit}>
-        {["name", "brand", "price", "stock", "description"].map((field) => (
+    <div>
+      <h2 className="edit-h2">Edit Product</h2>
+
+    <div className="edit-product-wrapper">
+      <div className="edit-product-flex">
+
+        {/* LEFT SIDE IMAGE */}
+        <div>
+          {preview && (
+            <img src={preview} alt="Preview" className="edit-product-image" />
+          )}
+        </div>
+
+        {/* RIGHT SIDE FORM */}
+        <form onSubmit={handleSubmit} className="edit-product-form">
+          {["name", "brand", "price", "stock", "description"].map((field) => (
+            <input
+              key={field}
+              value={product[field] || ""}
+              onChange={(e) =>
+                setProduct({ ...product, [field]: e.target.value })
+              }
+              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+              required={["name", "price", "stock"].includes(field)}
+              className="edit-product-input"
+            />
+          ))}
+
           <input
-            key={field}
-            value={product[field] || ""}
-            onChange={(e) =>
-              setProduct({ ...product, [field]: e.target.value })
-            }
-            placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-            required={["name", "price", "stock"].includes(field)}
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="edit-product-file"
           />
-        ))}
 
-        <input type="file" accept="image/*" onChange={handleImageChange} />
-        {preview && (
-          <img
-            src={preview}
-            alt="Preview"
-            style={{ width: "100%", marginTop: "10px", borderRadius: "8px" }}
-          />
-        )}
-
-        <button type="submit">Update</button>
-      </form>
+          <button type="submit">Update</button>
+        </form>
+      </div>
     </div>
+   </div> 
   );
 }

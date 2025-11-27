@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminSidebar from "../../components/AdminSidebar";
 import Navbar from "../../components/Navbar";
+import "./CreateSales.css";
 
 export default function CreateSales() {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [companyInput, setCompanyInput] = useState(""); // <-- NEW
 
   // Fetch products with token
   useEffect(() => {
@@ -21,13 +23,7 @@ export default function CreateSales() {
           },
         });
 
-        console.log("PRODUCTS FROM BACKEND:", res.data);
-
-        // Handle API responses consistently
-        const data = Array.isArray(res.data)
-          ? res.data
-          : res.data?.products;
-
+        const data = Array.isArray(res.data) ? res.data : res.data?.products;
         setProducts(data || []);
       } catch (error) {
         console.log("Error loading products:", error.response?.data || error);
@@ -38,7 +34,7 @@ export default function CreateSales() {
     fetchProducts();
   }, []);
 
-  // Add item to cart
+  // Add to cart
   const addToCart = () => {
     if (!selectedProduct) return alert("Select a product first!");
 
@@ -55,6 +51,7 @@ export default function CreateSales() {
     const item = {
       _id: product._id,
       name: product.name,
+      company: companyInput || product.company || "N/A", // <-- UPDATED
       price: product.price,
       quantity,
       total: product.price * quantity,
@@ -63,6 +60,7 @@ export default function CreateSales() {
     setCart([...cart, item]);
     setSelectedProduct("");
     setQuantity(1);
+    setCompanyInput(""); // <-- CLEAR INPUT
   };
 
   // Remove item
@@ -73,7 +71,7 @@ export default function CreateSales() {
   // Compute total
   const grandTotal = cart.reduce((acc, item) => acc + item.total, 0);
 
-  // Submit sale to backend
+  // Submit sale
   const submitSale = async () => {
     if (cart.length === 0) return alert("Cart is empty!");
 
@@ -106,7 +104,7 @@ export default function CreateSales() {
       <AdminSidebar />
 
       <div className="admin-content">
-        <h1 style={{ marginTop: "20px" }}>Create Sales</h1>
+        <h1>Create Sales</h1>
 
         {/* Product Selection */}
         <div className="sales-form">
@@ -121,6 +119,14 @@ export default function CreateSales() {
               </option>
             ))}
           </select>
+
+          {/* NEW: Company Input */}
+          <input
+            type="text"
+            placeholder="Company"
+            value={companyInput}
+            onChange={(e) => setCompanyInput(e.target.value)}
+          />
 
           <input
             type="number"
@@ -138,6 +144,7 @@ export default function CreateSales() {
           <thead>
             <tr>
               <th>Product</th>
+              <th>Company</th>
               <th>Price (₱)</th>
               <th>Quantity</th>
               <th>Total (₱)</th>
@@ -149,8 +156,9 @@ export default function CreateSales() {
             {cart.map((item) => (
               <tr key={item._id}>
                 <td>{item.name}</td>
+                <td>{item.company}</td>
                 <td>{item.price}</td>
-                <td>{item.stock}</td>
+                <td>{item.quantity}</td>
                 <td>{item.total}</td>
                 <td>
                   <button
@@ -165,7 +173,7 @@ export default function CreateSales() {
 
             {cart.length === 0 && (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
+                <td colSpan="6" style={{ textAlign: "center" }}>
                   No items added yet.
                 </td>
               </tr>
@@ -173,7 +181,7 @@ export default function CreateSales() {
           </tbody>
         </table>
 
-        {/* Total + Submit */}
+        {/* Total */}
         <div className="sales-total">
           <h2>Total: ₱{grandTotal}</h2>
           <button className="submit-btn" onClick={submitSale}>
@@ -184,4 +192,3 @@ export default function CreateSales() {
     </div>
   );
 }
-

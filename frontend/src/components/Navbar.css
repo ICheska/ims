@@ -1,0 +1,39 @@
+/* --- Navbar --- */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color:  #e45078;
+}
+
+nav .brand {
+  font-weight: 700;
+  font-size: 25px;
+  color: #222222;
+
+}
+
+nav a {
+  margin-right: 15px;
+  font-weight: 800;
+  color: #555555;
+
+}
+
+
+nav button {
+  
+background-color: #fb8daa;
+  border: #222222;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-left: 10px;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+nav button:hover {
+  background-color: #fc7a9c;
+}
+

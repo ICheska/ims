@@ -51,7 +51,7 @@ export default function AdminSidebar() {
             </Link>
           </li>
 
-          <li style={{ marginTop: "20px", opacity: 0.6 }}>─── Sales ───</li>
+         {/*<li style={{ marginTop: "20px", opacity: 0.6 }}>─── Sales ───</li>*/}
 
           <li>
             <Link className="menu-item" to="/admin/sales/create">

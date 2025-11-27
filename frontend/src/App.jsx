@@ -15,8 +15,8 @@ import AddProduct from "./pages/admin/AddProduct";
 import EditProduct from "./pages/admin/EditProduct";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageAccounts from "./pages/admin/ManageAccounts";
-/*import CreateSales from "./pages/sales/CreateSales";*/
-/*import SalesHistory from "./pages/sales/SalesHistory";*/
+
+
 
 // User pages
 import UserDashboard from "./pages/user/UserDashboard";
@@ -41,7 +41,11 @@ import "./components/sidebar.css";
 
 import CreateSales from "./pages/admin/CreateSales";
 
-/*import SalesHistory from "./pages/sales/SalesHistory";*/
+//SALES HISTORY
+import SalesHistory from "./pages/admin/SalesHistory";
+
+
+
  
 // ---------------------- APP CONTENT ----------------------
 function AppContent() {
@@ -105,8 +109,9 @@ function AppContent() {
           <Route path="/reports" element={<Reports />} />
 
 <Route path="/admin/sales/create" element={<CreateSales />} />
-{/*<Route path="/admin/sales/history" element={<SalesHistory />} />*/}
 
+
+<Route path="/admin/sales/history" element={<SalesHistory />} />
 
         </Routes>
       </div>

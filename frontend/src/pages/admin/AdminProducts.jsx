@@ -1,6 +1,7 @@
- import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import "./AdminProducts.css";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -38,60 +39,32 @@ export default function AdminProducts() {
   };
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h1>All Products</h1>
-      <Link
-        to="/admin/dashboard"
-        style={{ marginBottom: "20px", display: "inline-block" }}
-      >
+    <div className="admin-products-container">
+      <h1 className="admin-products-header">All Products</h1>
+
+      <Link to="/admin/dashboard" className="admin-products-back">
         ⬅️ Back to Dashboard
       </Link>
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "20px",
-          marginTop: "20px",
-        }}
-      >
+      <div className="admin-products-list">
         {products.length === 0 ? (
           <p>No products found.</p>
         ) : (
           products.map((p) => (
-            <div
-              key={p._id}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "12px",
-                width: "250px",
-                padding: "10px",
-              }}
-            >
+            <div key={p._id} className="admin-product-card">
               <img
                 src={`http://localhost:5000/uploads/${p.image}`}
                 alt={p.name}
-                style={{
-                  width: "100%",
-                  height: "150px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
               />
               <h3>{p.name}</h3>
               <p>Brand: {p.brand}</p>
               <p>Category: {p.category}</p>
               <p>Price: ₱{p.price}</p>
-             <p>Stock: {p.quantity}</p>
+              <p>Stock: {p.quantity}</p>
               <p>{p.description}</p>
 
-              <div style={{ marginTop: "10px" }}>
-                <Link
-                  to={`/admin/edit/${p._id}`}
-                  style={{ marginRight: "10px" }}
-                >
-                  ✏️ Edit
-                </Link>
+              <div className="admin-product-actions">
+                <Link to={`/admin/edit/${p._id}`}>✏️ Edit</Link>
                 <button onClick={() => handleDelete(p._id)}>🗑 Delete</button>
               </div>
             </div>

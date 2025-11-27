@@ -6,6 +6,7 @@ const salesSchema = new mongoose.Schema(
       {
         _id: String,
         name: String,
+        company: String,
         price: Number,
         quantity: Number,
         total: Number,

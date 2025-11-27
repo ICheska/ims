@@ -1,0 +1,54 @@
+/* Main container for the whole section */
+.edit-h2{
+    margin-left: -70px;
+    margin-top: 20px;
+}
+
+.edit-product-wrapper{
+  flex-direction: flex;
+  justify-content: center;
+  width: 100%;
+ margin-left: -70px;
+  margin-top: 20px;
+
+}
+
+
+.edit-product-wrapper h2 {
+  text-align: left;
+  
+}
+
+/* Flex wrapper that holds IMAGE + INPUTS */
+.edit-product-flex {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  margin-top: 30px;
+  width: 100%;
+}
+
+/* Form styles */
+.edit-product-form {
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Inputs spacing */
+.edit-product-input {
+  margin-bottom: 10px;
+}
+
+/* Image preview on the left */
+.edit-product-image {
+  width: 200px;
+  border-radius: 10px;
+  display: block;
+}
+
+/* File input */
+.edit-product-file {
+  margin-bottom: 15px;
+}
