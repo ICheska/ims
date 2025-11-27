@@ -4,15 +4,23 @@ const salesSchema = new mongoose.Schema(
   {
     items: [
       {
-        _id: String,
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+        },
         name: String,
-        company: String,
         price: Number,
+        cost: Number,
         quantity: Number,
         total: Number,
       },
     ],
     totalAmount: Number,
+    totalProfit: Number,
+    refunded: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

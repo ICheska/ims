@@ -9,35 +9,32 @@ export default function CreateSales() {
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [companyInput, setCompanyInput] = useState(""); // <-- NEW
+  const [companyInput, setCompanyInput] = useState("");
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
-  // Fetch products with token
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoadingProducts(true);
       try {
         const token = localStorage.getItem("token");
-
         const res = await axios.get("http://localhost:5000/api/products", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const data = Array.isArray(res.data) ? res.data : res.data?.products;
         setProducts(data || []);
-      } catch (error) {
-        console.log("Error loading products:", error.response?.data || error);
+      } catch (err) {
+        console.error("Error loading products:", err.response?.data || err);
         setProducts([]);
+      } finally {
+        setLoadingProducts(false);
       }
     };
-
     fetchProducts();
   }, []);
 
-  // Add to cart
   const addToCart = () => {
     if (!selectedProduct) return alert("Select a product first!");
-
     const product = products.find((p) => p._id === selectedProduct);
     if (!product) return;
 
@@ -48,53 +45,85 @@ export default function CreateSales() {
     const exists = cart.find((item) => item._id === product._id);
     if (exists) return alert("Item is already in cart!");
 
+    const costValue = Number(product.cost ?? product.purchasePrice ?? 0);
+
     const item = {
       _id: product._id,
       name: product.name,
-      company: companyInput || product.company || "N/A", // <-- UPDATED
-      price: product.price,
+      company: companyInput || product.company || "N/A",
+      priceOriginal: product.price,
+      priceOverride: product.price,
       quantity,
+      discount: 0,
+      discountType: "amount",
+      cost: costValue,
       total: product.price * quantity,
+      profit: Number((product.price - costValue) * quantity),
     };
 
     setCart([...cart, item]);
     setSelectedProduct("");
     setQuantity(1);
-    setCompanyInput(""); // <-- CLEAR INPUT
+    setCompanyInput("");
   };
 
-  // Remove item
   const removeItem = (id) => {
-    setCart(cart.filter((item) => item._id !== id));
+    setCart(cart.filter((c) => c._id !== id));
   };
 
-  // Compute total
-  const grandTotal = cart.reduce((acc, item) => acc + item.total, 0);
+  const updateCartItem = (id, changes) => {
+    setCart((cart) =>
+      cart.map((it) => {
+        if (it._id !== id) return it;
 
-  // Submit sale
+        const updated = { ...it, ...changes };
+
+        const qty = Number(updated.quantity) || 0;
+        const price = Number(updated.priceOverride) || 0;
+        const cost = Number(updated.cost) || 0;
+
+        let discountValue = 0;
+        if (updated.discount) {
+          const d = Number(updated.discount);
+          discountValue =
+            updated.discountType === "percent" ? (price * d) / 100 : d;
+        }
+
+        const finalUnitPrice = Math.max(0, price - discountValue);
+
+        updated.total = Number((finalUnitPrice * qty).toFixed(2));
+
+        const perUnitProfit = price - cost - discountValue;
+        updated.profit = Number((perUnitProfit * qty).toFixed(2));
+
+        return updated;
+      })
+    );
+  };
+
+  const grandTotal = cart.reduce((sum, i) => sum + Number(i.total), 0);
+  const grandProfit = cart.reduce((sum, i) => sum + Number(i.profit), 0);
+
   const submitSale = async () => {
     if (cart.length === 0) return alert("Cart is empty!");
 
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post(
-        "http://localhost:5000/api/sales/create",
-        {
-          items: cart,
-          totalAmount: grandTotal,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const payload = {
+        items: cart,
+        totalAmount: grandTotal,
+      };
+
+      // ✅ FIXED: removed /create
+      await axios.post("http://localhost:5000/api/sales", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       alert("Sale completed!");
       setCart([]);
-    } catch (error) {
-      console.log("Error submitting sale:", error.response?.data || error);
+    } catch (err) {
+      console.error("Error submitting sale:", err.response?.data || err);
       alert("Error processing sale.");
     }
   };
@@ -102,11 +131,9 @@ export default function CreateSales() {
   return (
     <div className="admin-container">
       <AdminSidebar />
-
       <div className="admin-content">
         <h1>Create Sales</h1>
 
-        {/* Product Selection */}
         <div className="sales-form">
           <select
             value={selectedProduct}
@@ -120,7 +147,6 @@ export default function CreateSales() {
             ))}
           </select>
 
-          {/* NEW: Company Input */}
           <input
             type="text"
             placeholder="Company"
@@ -139,51 +165,113 @@ export default function CreateSales() {
           <button onClick={addToCart}>Add to Cart</button>
         </div>
 
-        {/* Cart Table */}
-        <table className="sales-table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Company</th>
-              <th>Price (₱)</th>
-              <th>Quantity</th>
-              <th>Total (₱)</th>
-              <th>Remove</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {cart.map((item) => (
-              <tr key={item._id}>
-                <td>{item.name}</td>
-                <td>{item.company}</td>
-                <td>{item.price}</td>
-                <td>{item.quantity}</td>
-                <td>{item.total}</td>
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => removeItem(item._id)}
-                  >
-                    X
-                  </button>
-                </td>
-              </tr>
-            ))}
-
-            {cart.length === 0 && (
+        <div className="table-wrapper">
+          <table className="sales-table">
+            <thead>
               <tr>
-                <td colSpan="6" style={{ textAlign: "center" }}>
-                  No items added yet.
-                </td>
+                <th>Product</th>
+                <th>Company</th>
+                <th>Price (₱)</th>
+                <th>Discount</th>
+                <th>Qty</th>
+                <th>Total (₱)</th>
+                <th>Profit (₱)</th>
+                <th>Remove</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
 
-        {/* Total */}
+            <tbody>
+              {cart.map((item) => (
+                <tr key={item._id}>
+                  <td>{item.name}</td>
+                  <td>{item.company}</td>
+
+                  <td>
+                    <input
+                      type="number"
+                      value={item.priceOverride}
+                      onChange={(e) =>
+                        updateCartItem(item._id, {
+                          priceOverride: Number(e.target.value),
+                        })
+                      }
+                      style={{ width: 90 }}
+                    />
+                    <div style={{ fontSize: 12, color: "#666" }}>
+                      orig: {item.priceOriginal}
+                    </div>
+                  </td>
+
+                  <td>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <input
+                        type="number"
+                        value={item.discount}
+                        onChange={(e) =>
+                          updateCartItem(item._id, {
+                            discount: Number(e.target.value),
+                          })
+                        }
+                        style={{ width: 70 }}
+                      />
+                      <select
+                        value={item.discountType}
+                        onChange={(e) =>
+                          updateCartItem(item._id, {
+                            discountType: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="amount">₱</option>
+                        <option value="percent">%</option>
+                      </select>
+                    </div>
+                  </td>
+
+                  <td>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        updateCartItem(item._id, {
+                          quantity: Number(e.target.value),
+                        })
+                      }
+                      style={{ width: 70 }}
+                    />
+                  </td>
+
+                  <td>{item.total.toFixed(2)}</td>
+                  <td>{item.profit.toFixed(2)}</td>
+
+                  <td>
+                    <button
+                      className="delete-btn"
+                      onClick={() => removeItem(item._id)}
+                    >
+                      X
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {cart.length === 0 && (
+                <tr>
+                  <td colSpan="8" style={{ textAlign: "center" }}>
+                    No items added yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
         <div className="sales-total">
-          <h2>Total: ₱{grandTotal}</h2>
+          <h3>Total: ₱{grandTotal.toFixed(2)}</h3>
+          <div style={{ fontSize: 14, color: "#666" }}>
+            Estimated Profit: ₱{grandProfit.toFixed(2)}
+          </div>
           <button className="submit-btn" onClick={submitSale}>
             Complete Sale
           </button>

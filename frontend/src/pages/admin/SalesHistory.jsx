@@ -25,6 +25,32 @@ export default function SalesHistory() {
     fetchSales();
   }, []);
 
+  // --------------------------
+  // REFUND SALE
+  // --------------------------
+  const refundSale = async (id) => {
+    if (!window.confirm("Refund this sale? This will return items to stock."))
+      return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.post(
+        `http://localhost:5000/api/sales/${id}/refund`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Remove from UI after refund
+      setSales((prev) => prev.filter((s) => s._id !== id));
+
+      alert("Sale refunded successfully!");
+    } catch (error) {
+      console.error("Refund error:", error);
+      alert("Refund failed. Check backend.");
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -34,42 +60,61 @@ export default function SalesHistory() {
       {sales.length === 0 ? (
         <p>No sales yet.</p>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            marginTop: "20px",
+          }}
+        >
           <thead>
-            <tr>
-              <th>Date</th>
-              <th>Company</th>
-              <th>Items</th>
-              <th>Total (₱)</th>
+            <tr style={{ background: "#f5f5f5" }}>
+              <th style={thStyle}>Date</th>
+              <th style={thStyle}>Company</th>
+              <th style={thStyle}>Items</th>
+              <th style={thStyle}>Total (₱)</th>
+              <th style={thStyle}>Action</th>
             </tr>
           </thead>
 
           <tbody>
             {sales.map((sale) => (
               <tr key={sale._id}>
-                {/* DATE */}
-                <td>{new Date(sale.createdAt).toLocaleString()}</td>
+                <td style={tdStyle}>
+                  {new Date(sale.createdAt).toLocaleString()}
+                </td>
 
-                {/* COMPANY COLUMN */}
-                <td>
+                <td style={tdStyle}>
                   {sale.items.map((item, index) => (
-                    <div key={index}>
-                      {item.company || "N/A"}
-                    </div>
+                    <div key={index}>{item.company || "N/A"}</div>
                   ))}
                 </td>
 
-                {/* ITEMS COLUMN */}
-                <td>
+                <td style={tdStyle}>
                   {sale.items.map((item, index) => (
-                    <div key={index} style={{ marginBottom: "4px" }}>
+                    <div key={index}>
                       {item.name} × {item.quantity} (₱{item.price})
                     </div>
                   ))}
                 </td>
 
-                {/* TOTAL */}
-                <td>₱{sale.totalAmount}</td>
+                <td style={tdStyle}>₱{sale.totalAmount}</td>
+
+                <td style={tdStyle}>
+                  <button
+                    onClick={() => refundSale(sale._id)}
+                    style={{
+                      padding: "6px 12px",
+                      background: "#2196f3",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Refund
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -78,3 +123,15 @@ export default function SalesHistory() {
     </div>
   );
 }
+
+// STYLE OBJECTS
+const thStyle = {
+  textAlign: "left",
+  padding: "10px",
+  borderBottom: "1px solid #ccc",
+};
+
+const tdStyle = {
+  padding: "10px",
+  borderBottom: "1px solid #eee",
+};
